@@ -1,8 +1,8 @@
 import React, { Fragment } from "react";
 import "./App.css";
 import Navbar from "./components/layout/Navbar";
-import About from "./components/layout/pages/About";
-import Home from "./components/layout/pages/Home";
+import About from "./components/pages/About";
+import Home from "./components/pages/Home";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import ContactState from './context/contact/ContactState';
 const App = () => {
