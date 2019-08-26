@@ -3,20 +3,16 @@ import uuid from 'uuid';
 import axios from 'axios'; 
 import AuthContext from './authContext';
 import authReducer from './authReducer';
+import setAuthToken from '../../utils/setAuthToken';
 import {
-    AUTH_ERROR,
-    CLEAR_CONTACTS,
     CLEAR_ERRORS,
-    CONTACT_ERROR,
-    GET_CONTACTS,
     LOGIN_FAIL,
     LOGIN_SUCCESS,
     LOGOUT,
     REGISTER_FAIL,
     REGISTER_SUCCESS,
-    REMOVE_ALERT,
-    SET_ALERT,
-    USER_LOADED
+    USER_LOADED,
+    AUTH_ERROR
 } from '../types';
 
 const AuthState = (props) => {
@@ -31,7 +27,22 @@ const AuthState = (props) => {
     const [state, dispatch] = useReducer(authReducer, initialState);
 
     // Load user
-    const loadUser = () => console.log('Load user');
+    const loadUser = async () => {
+        if(localStorage.token) {
+            setAuthToken(localStorage.token);
+        }
+
+        try {
+            const res = await axios.get('api/auth');
+
+            dispatch({
+                type: USER_LOADED, 
+                payload: res.data
+            });
+        } catch (error) {
+            dispatch({ type: AUTH_ERROR});
+        }
+    };
 
     // Register user
     const register = async formData => {
@@ -42,12 +53,15 @@ const AuthState = (props) => {
         };
 
         try {
+            console.log("formdata: " + JSON.stringify(formData));
             const res = await axios.post('/api/users', formData, config);
 
             dispatch({
                 type: REGISTER_SUCCESS,
                 payload: res.data
             });
+
+            loadUser();
         } catch (error) {
             
             dispatch({
@@ -58,7 +72,31 @@ const AuthState = (props) => {
     }
 
     // Login user
-    const login = () => console.log('Logged in');
+    const login =async formData => {
+        const config = {
+            headers: {
+                'Content-type': 'application/json'
+            }
+        };
+
+        try {
+            console.log("formdata: " + JSON.stringify(formData));
+            const res = await axios.post('/api/auth', formData, config);
+
+            dispatch({
+                type: LOGIN_SUCCESS,
+                payload: res.data
+            });
+
+            loadUser();
+        } catch (error) {
+            
+            dispatch({
+                type: LOGIN_FAIL,
+                payload: error.response.data.msg
+            });
+        }
+    };
 
     // Logout
     const logoout = () => console.log('Log out');
