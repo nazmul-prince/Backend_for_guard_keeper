@@ -10,6 +10,7 @@ const app = express();
 connectDB();
 
 // Init middleware
+//You need this to parse json body in the req
 app.use(express.json({ extended: false }));
 
 app.get('/', (req, res) => res.send("Guard keeper"));
